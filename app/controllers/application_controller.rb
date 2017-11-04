@@ -3,7 +3,7 @@ class ApplicationController < ActionController::API
   # @return [JSON] json result for given place id
   def get_json_response(place_id)
     response = HTTParty.get('https://maps.googleapis.com/maps/api/place/details/json',
-                            query: { key: 'AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM',
+                            query: { key: YoshiAPI::Application.config.google_api_key,
                                      placeid: place_id })
     JSON.parse(response.body)
   rescue
@@ -33,7 +33,7 @@ class ApplicationController < ActionController::API
   # @return [String] place id of location for given coordinate
   def get_current_place_id(lat, lng)
     current_place_res = HTTParty.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json',
-                                     query: { key: 'AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM',
+                                     query: { key: YoshiAPI::Application.config.google_api_key,
                                               location: "#{lat},#{lng}",
                                               rankby: 'distance' })
     current_place_json = JSON.parse(current_place_res.body)
@@ -47,7 +47,7 @@ class ApplicationController < ActionController::API
   # @return [String] place id of nearest gas station for given coordinate
   def get_nearest_gs_place_id(lat, lng)
     nearest_gas_res = HTTParty.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json',
-                                   query: { key: 'AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM',
+                                   query: { key: YoshiAPI::Application.config.google_api_key,
                                             location: "#{lat},#{lng}",
                                             rankby: 'distance',
                                             types: 'gas_station' })

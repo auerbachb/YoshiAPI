@@ -45,3 +45,7 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 end
+
+YoshiAPI::Application.configure do
+  config.google_api_key = :AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM
+end
