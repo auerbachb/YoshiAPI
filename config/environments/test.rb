@@ -40,3 +40,7 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 end
+
+YoshiAPI::Application.configure do
+  config.google_api_key = :AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM
+end

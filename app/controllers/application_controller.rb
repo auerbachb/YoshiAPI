@@ -14,14 +14,14 @@ class ApplicationController < ActionController::API
   # @return [JSON] json result of place info for given place_id
   def get_info(place_id)
     response_json = get_json_response(place_id)
-    street_name = response_json['result']['formatted_address']
+    puts response_json
     city = '', state = '', postcode = ''
     response_json['result']['address_components'].each do |address_info|
       city = address_info['long_name'] if address_info['types'].include? 'locality'
       state = address_info['short_name'] if address_info['types'].include? 'administrative_area_level_1'
       postcode = address_info['long_name'] if address_info['types'].include? 'postal_code'
     end
-    { streetAddress: street_name, city: city,
+    { streetAddress: response_json['result']['formatted_address'], city: city,
       state: state, postalCode: postcode }
   rescue
     { streetAddress: '', city: '',
