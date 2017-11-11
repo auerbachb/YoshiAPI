@@ -1,3 +1,11 @@
+class String
+  def is_number?
+    true if Float(self)
+  rescue
+    false
+  end
+end
+
 class ApplicationController < ActionController::API
   # @param [String] place_id
   # @return [JSON] json result for given place id
@@ -14,7 +22,6 @@ class ApplicationController < ActionController::API
   # @return [JSON] json result of place info for given place_id
   def get_info(place_id)
     response_json = get_json_response(place_id)
-    puts response_json
     city = '', state = '', postcode = ''
     response_json['result']['address_components'].each do |address_info|
       city = address_info['long_name'] if address_info['types'].include? 'locality'
@@ -65,8 +72,12 @@ class ApplicationController < ActionController::API
     end
     lat = params[:lat]
     lng = params[:lng]
-    if lat.to_f < -90 || lat.to_f > 90 || lng.to_f < -180 || lng.to_f > 180
-      render json: { result: 'fail', error: 'Invalid coordinate' }
+    unless lat.is_number? && lng.is_number?
+      render json: { result: 'fail', error: 'Invalid Request' }
+      return
+    end
+    unless lat.to_f >= -90 && lat.to_f <= 90 && lng.to_f >= -180 && lng.to_f <= 180
+      render json: { result: 'fail', error: 'Invalid Request' }
       return
     end
     current_place_info = get_info(get_current_place_id(lat, lng))
