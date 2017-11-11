@@ -71,4 +71,68 @@ RSpec.describe('API call with invalid longitude', type: :request) {
   end
 }
 
+RSpec.describe('API call with invalid latitude', type: :request) {
+  it 'should return invalid request in API response' do
+    get BASE_URL + '/nearest_gas?lat=91&lng=-122.419076'
+    json = JSON.parse(response.body)
+    expect(response.status).to eq(200)
+    expect(json['result']).to eq('fail')
+    expect(json['error']).to eq('Invalid Request')
+  end
+}
+
+RSpec.describe('API call with invalid latitude', type: :request) {
+  it 'should return invalid request in API response' do
+    get BASE_URL + '/nearest_gas?lat=-91&lng=-122.419076'
+    json = JSON.parse(response.body)
+    expect(response.status).to eq(200)
+    expect(json['result']).to eq('fail')
+    expect(json['error']).to eq('Invalid Request')
+  end
+}
+
+RSpec.describe('API call with invalid longitude', type: :request) {
+  it 'should return invalid request in API response' do
+    get BASE_URL + '/nearest_gas?lat=37.77801&lng=181'
+    json = JSON.parse(response.body)
+    expect(response.status).to eq(200)
+    expect(json['result']).to eq('fail')
+    expect(json['error']).to eq('Invalid Request')
+  end
+}
+
+RSpec.describe('API call with invalid longitude', type: :request) {
+  it 'should return invalid request in API response' do
+    get BASE_URL + '/nearest_gas?lat=37.77801&lng=-181'
+    json = JSON.parse(response.body)
+    expect(response.status).to eq(200)
+    expect(json['result']).to eq('fail')
+    expect(json['error']).to eq('Invalid Request')
+  end
+}
+
+RSpec.describe('API call with an coordinate without valid empty address and empty nearest gas station address', type: :request) {
+  it 'should return empty address and empty nearest gas station' do
+    get BASE_URL + '/nearest_gas?lat=0&lng=0'
+    json = JSON.parse(response.body)
+    expect(response.status).to eq(200)
+    expect(json['result']).to eq('suc')
+    # address checking
+    expect(json['data']['address']['streetAddress']).to eq('')
+    expect(json['data']['address']['city']).to eq('')
+    expect(json['data']['address']['state']).to eq('')
+    expect(json['data']['address']['postalCode']).to eq('')
+    # nearest gas checking
+    expect(json['data']['nearest_gas_station']['streetAddress']).to eq('')
+    expect(json['data']['nearest_gas_station']['city']).to eq('')
+    expect(json['data']['nearest_gas_station']['state']).to eq('')
+    expect(json['data']['nearest_gas_station']['postalCode']).to eq('')
+  end
+}
+
+
+
+
+
+
 
