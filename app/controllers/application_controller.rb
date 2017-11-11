@@ -10,6 +10,7 @@ class ApplicationController < ActionController::API
   # @param [String] place_id
   # @return [JSON] json result for given place id
   def get_json_response(place_id)
+    return {} if place_id.nil?
     response = HTTParty.get('https://maps.googleapis.com/maps/api/place/details/json',
                             query: { key: YoshiAPI::Application.config.google_api_key,
                                      placeid: place_id })
@@ -21,6 +22,7 @@ class ApplicationController < ActionController::API
   # @param [String] place_id
   # @return [JSON] json result of place info for given place_id
   def get_info(place_id)
+    return { streetAddress: '', city: '', state: '', postalCode: '' } if place_id.nil?
     response_json = get_json_response(place_id)
     city = '', state = '', postcode = ''
     response_json['result']['address_components'].each do |address_info|
