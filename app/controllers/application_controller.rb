@@ -41,6 +41,8 @@ class ApplicationController < ActionController::API
   # @param [String] lng longitude
   # @return [String] place id of location for given coordinate
   def get_current_place_id(lat, lng)
+    return '' unless lat.is_number? && lng.is_number?
+    return '' unless lat.to_f >= -90 && lat.to_f <= 90 && lng.to_f >= -180 && lng.to_f <= 180
     current_place_res = HTTParty.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json',
                                      query: { key: YoshiAPI::Application.config.google_api_key,
                                               location: "#{lat},#{lng}",
@@ -55,6 +57,8 @@ class ApplicationController < ActionController::API
   # @param [String] lng longitude
   # @return [String] place id of nearest gas station for given coordinate
   def get_nearest_gs_place_id(lat, lng)
+    return '' unless lat.is_number? && lng.is_number?
+    return '' unless lat.to_f >= -90 && lat.to_f <= 90 && lng.to_f >= -180 && lng.to_f <= 180
     nearest_gas_res = HTTParty.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json',
                                    query: { key: YoshiAPI::Application.config.google_api_key,
                                             location: "#{lat},#{lng}",
