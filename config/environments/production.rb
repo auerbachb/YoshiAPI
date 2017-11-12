@@ -81,3 +81,8 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 end
+
+YoshiAPI::Application.configure do
+  config.google_api_key = :AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM
+  config.db_path = 'db/production.sqlite3'
+end

@@ -48,4 +48,5 @@ end
 
 YoshiAPI::Application.configure do
   config.google_api_key = :AIzaSyArSkeyF4aZEv0gaTV0KcYgIyCn2BwdHnM
+  config.db_path = 'db/development.sqlite3'
 end
