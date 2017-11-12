@@ -1,4 +1,3 @@
-require 'sqlite3'
 class String
   def is_number?
     true if Float(self)
@@ -9,11 +8,11 @@ end
 
 class ApplicationController < ActionController::API
   def insert_new_record(lat, lng, current_place_info, nearest_gas_info)
-    db = SQLite3::Database.open YoshiAPI::Application.config.db_path
+    db = ActiveRecord::Base.connection
     db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, streetAddress TEXT, city TEXT, state TEXT, postalCode TEXT, ns_streetAddress TEXT, ns_city TEXT, ns_state TEXT, ns_postalCode TEXT)'
     sql = format("INSERT INTO Records VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", "#{lat} #{lng}", current_place_info[:streetAddress], current_place_info[:city], current_place_info[:state], current_place_info[:postalCode], nearest_gas_info[:streetAddress], nearest_gas_info[:city], nearest_gas_info[:state], nearest_gas_info[:postalCode])
     db.execute sql
-  rescue SQLite3::Exception => e
+  rescue Exception => e
     puts 'Exception occurred'
     puts e
   ensure
@@ -21,27 +20,27 @@ class ApplicationController < ActionController::API
   end
 
   def retrieve_a_record(lat, lng)
-    db = SQLite3::Database.open YoshiAPI::Application.config.db_path
+    db = ActiveRecord::Base.connection
     db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, streetAddress TEXT, city TEXT, state TEXT, postalCode TEXT, ns_streetAddress TEXT, ns_city TEXT, ns_state TEXT, ns_postalCode TEXT)'
     sql = format("SELECT * FROM Records WHERE lat_and_lng='%s'", "#{lat} #{lng}")
-    row = db.get_first_row sql
+    row = db.select_one sql
     unless row.nil?
       return true, {
         address: {
-          streetAddress: row[1],
-          city: row[2],
-          state: row[3],
-          postalCode: row[4]
+          streetAddress: row['streetaddress'],
+          city: row['city'],
+          state: row['state'],
+          postalCode: row['postalcode']
         }, nearest_gas_station: {
-          streetAddress: row[5],
-          city: row[6],
-          state: row[7],
-          postalCode: row[8]
+          streetAddress: row['ns_streetaddress'],
+          city: row['ns_city'],
+          state: row['ns_state'],
+          postalCode: row['ns_postalCode']
         }
       }
     end
     return false, nil
-  rescue SQLite3::Exception => e
+  rescue Exception => e
     puts 'Exception occurred'
     puts e
     return false, nil
