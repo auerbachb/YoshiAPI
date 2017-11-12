@@ -9,9 +9,10 @@ end
 class ApplicationController < ActionController::API
   def insert_new_record(lat, lng, current_place_info, nearest_gas_info)
     db = ActiveRecord::Base.connection
-    db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, streetAddress TEXT, city TEXT, state TEXT, postalCode TEXT, ns_streetAddress TEXT, ns_city TEXT, ns_state TEXT, ns_postalCode TEXT)'
-    sql = format("INSERT INTO Records VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", "#{lat} #{lng}", current_place_info[:streetAddress], current_place_info[:city], current_place_info[:state], current_place_info[:postalCode], nearest_gas_info[:streetAddress], nearest_gas_info[:city], nearest_gas_info[:state], nearest_gas_info[:postalCode])
-    db.execute sql
+    db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, street_address TEXT, city TEXT, state TEXT, postal_code TEXT, ns_street_address TEXT, ns_city TEXT, ns_state TEXT, ns_postal_code TEXT)'
+    sql = format("INSERT INTO Records VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", "#{lat} #{lng}", current_place_info[:streetAddress], current_place_info[:city], current_place_info[:state], current_place_info[:postalCode], nearest_gas_info[:streetAddress], nearest_gas_info[:city],
+                 nearest_gas_info[:state], nearest_gas_info[:postalCode])
+    db.execute(sql)
   rescue Exception => e
     puts 'Exception occurred'
     puts e
@@ -21,21 +22,21 @@ class ApplicationController < ActionController::API
 
   def retrieve_a_record(lat, lng)
     db = ActiveRecord::Base.connection
-    db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, streetAddress TEXT, city TEXT, state TEXT, postalCode TEXT, ns_streetAddress TEXT, ns_city TEXT, ns_state TEXT, ns_postalCode TEXT)'
-    sql = format("SELECT * FROM Records WHERE lat_and_lng='%s'", "#{lat} #{lng}")
-    row = db.select_one sql
+    db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, street_address TEXT, city TEXT, state TEXT, postal_code TEXT, ns_street_address TEXT, ns_city TEXT, ns_state TEXT, ns_postal_code TEXT)'
+    sql = format("SELECT * FROM Records WHERE lat_and_lng='%s';", "#{lat} #{lng}")
+    row = db.select_one(sql)
     unless row.nil?
       return true, {
         address: {
-          streetAddress: row['streetaddress'],
+          streetAddress: row['street_address'],
           city: row['city'],
           state: row['state'],
-          postalCode: row['postalcode']
+          postalCode: row['postal_code']
         }, nearest_gas_station: {
-          streetAddress: row['ns_streetaddress'],
+          streetAddress: row['ns_street_address'],
           city: row['ns_city'],
           state: row['ns_state'],
-          postalCode: row['ns_postalCode']
+          postalCode: row['ns_postal_code']
         }
       }
     end
