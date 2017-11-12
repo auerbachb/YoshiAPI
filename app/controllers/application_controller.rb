@@ -1,3 +1,4 @@
+require 'sqlite3'
 class String
   def is_number?
     true if Float(self)
@@ -7,6 +8,47 @@ class String
 end
 
 class ApplicationController < ActionController::API
+  def insert_new_record(lat, lng, current_place_info, nearest_gas_info)
+    db = SQLite3::Database.open YoshiAPI::Application.config.db_path
+    db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, streetAddress TEXT, city TEXT, state TEXT, postalCode TEXT, ns_streetAddress TEXT, ns_city TEXT, ns_state TEXT, ns_postalCode TEXT)'
+    sql = format("INSERT INTO Records VALUES('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", "#{lat} #{lng}", current_place_info[:streetAddress], current_place_info[:city], current_place_info[:state], current_place_info[:postalCode], nearest_gas_info[:streetAddress], nearest_gas_info[:city], nearest_gas_info[:state], nearest_gas_info[:postalCode])
+    db.execute sql
+  rescue SQLite3::Exception => e
+    puts 'Exception occurred'
+    puts e
+  ensure
+    db.close if db
+  end
+
+  def retrieve_a_record(lat, lng)
+    db = SQLite3::Database.open YoshiAPI::Application.config.db_path
+    db.execute 'CREATE TABLE IF NOT EXISTS Records(lat_and_lng TEXT PRIMARY KEY, streetAddress TEXT, city TEXT, state TEXT, postalCode TEXT, ns_streetAddress TEXT, ns_city TEXT, ns_state TEXT, ns_postalCode TEXT)'
+    sql = format("SELECT * FROM Records WHERE lat_and_lng='%s'", "#{lat} #{lng}")
+    row = db.get_first_row sql
+    unless row.nil?
+      return true, {
+        address: {
+          streetAddress: row[1],
+          city: row[2],
+          state: row[3],
+          postalCode: row[4]
+        }, nearest_gas_station: {
+          streetAddress: row[5],
+          city: row[6],
+          state: row[7],
+          postalCode: row[8]
+        }
+      }
+    end
+    return false, nil
+  rescue SQLite3::Exception => e
+    puts 'Exception occurred'
+    puts e
+    return false, nil
+  ensure
+    db.close if db
+  end
+
   # @param [String] place_id
   # @return [JSON] json result for given place id
   def get_json_response(place_id)
@@ -86,10 +128,17 @@ class ApplicationController < ActionController::API
       render json: { result: 'fail', error: 'Invalid Request' }
       return
     end
+    result, data = retrieve_a_record(lat, lng)
+    if result
+      render json: { result: 'suc', data: data }
+      return
+    end
     current_place_info = get_info(get_current_place_id(lat, lng))
     nearest_gas_info = get_info(get_nearest_gs_place_id(lat, lng))
+    insert_new_record(lat, lng, current_place_info, nearest_gas_info)
     render json: { result: 'suc', data: { address: current_place_info, nearest_gas_station: nearest_gas_info } }
-  rescue
+  rescue Exception => e
+    puts e
     render json: { result: 'fail', error: 'Internal Error' }
   end
 end
